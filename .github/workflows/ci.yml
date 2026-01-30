@@ -82,6 +82,4 @@ jobs:
         run: |
           set -euxo pipefail
           . .venv/bin/activate
-          echo "WINDOWS_RUNNER_USER=$WINDOWS_RUNNER_USER"
-          echo "WINDOWS_RUNNER_PASSWORD=$WINDOWS_RUNNER_PASSWORD"
           molecule test -s windows-runner
