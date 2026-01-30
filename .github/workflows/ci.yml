@@ -45,6 +45,9 @@ jobs:
           New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
           winrm enumerate winrm/config/listener
+          netstat -ano | findstr :5985
+          Test-NetConnection -ComputerName 127.0.0.1 -Port 5985
+          Get-NetFirewallRule -DisplayGroup "Windows Remote Management" | Format-Table -Auto
 
       - name: Setup WSL Ubuntu
         uses: Vampire/setup-wsl@v6
