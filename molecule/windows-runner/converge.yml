@@ -5,4 +5,4 @@
   tasks:
     - name: Apply Role
       ansible.builtin.include_role:
-        name: ansible-role-prometheus-windows-hardware-exporter
+        name: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}"
