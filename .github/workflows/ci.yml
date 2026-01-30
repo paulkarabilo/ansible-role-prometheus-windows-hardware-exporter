@@ -81,5 +81,8 @@ jobs:
           WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
         run: |
           set -euxo pipefail
+          # ensure secrets are available inside WSL: prefer existing env vars, fall back to GitHub secrets
+          export WINDOWS_RUNNER_USER="${WINDOWS_RUNNER_USER:-${{ secrets.WINDOWS_RUNNER_USER }}}"
+          export WINDOWS_RUNNER_PASSWORD="${WINDOWS_RUNNER_PASSWORD:-${{ secrets.WINDOWS_RUNNER_PASSWORD }}}"
           . .venv/bin/activate
           molecule test -s windows-runner
