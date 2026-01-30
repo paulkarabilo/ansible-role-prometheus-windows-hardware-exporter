@@ -9,74 +9,77 @@ on:
       - main
 
 jobs:
-    molecule-windows-runner:
-        runs-on: windows-latest
+  molecule-windows-runner:
+    runs-on: windows-latest
 
-        steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-            - name: Cache UV
-              uses: actions/cache@v4
-              with:
-                path: .ci-cache/uv
-                key: ${{ runner.os }}-uv-${{ hashFiles('requirements.txt') }}
-                restore-keys: |
-                  ${{ runner.os }}-uv-
+      - name: Cache UV
+        uses: actions/cache@v4
+        with:
+        path: .ci-cache/uv
+        key: ${{ runner.os }}-uv-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+            ${{ runner.os }}-uv-
 
-            - name: Create local WINRM user
-              env:
-                  WINDOWS_RUNNER_USER: ${{ secrets.WINDOWS_RUNNER_USER  }}
-                  WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
-              run: |
-                  echo "::add-mask::$env:WINDOWS_RUNNER_PASSWORD"
-                  $SecurePassword = ConvertTo-SecureString $env:WINDOWS_RUNNER_PASSWORD -AsPlainText -Force
-                  if (-not (Get-LocalUser -Name $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue)) {
-                      Write-Host "Creating user $env:WINDOWS_RUNNER_USER"
-                      New-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
-                  } else {
-                      Write-Host "User $env:WINDOWS_RUNNER_USER already exists"
-                      Set-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword
-                  }
-                  Add-LocalGroupMember -Group "Administrators" -Member $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue
+      - name: Create local WINRM user
+        env:
+          WINDOWS_RUNNER_USER: ${{ secrets.WINDOWS_RUNNER_USER  }}
+          WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
+        run: |
+          echo "::add-mask::$env:WINDOWS_RUNNER_PASSWORD"
+          $SecurePassword = ConvertTo-SecureString $env:WINDOWS_RUNNER_PASSWORD -AsPlainText -Force
+          if (-not (Get-LocalUser -Name $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue)) {
+              Write-Host "Creating user $env:WINDOWS_RUNNER_USER"
+              New-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
+          } else {
+              Write-Host "User $env:WINDOWS_RUNNER_USER already exists"
+              Set-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword
+          }
+          Add-LocalGroupMember -Group "Administrators" -Member $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue
 
-                  winrm quickconfig -q
-                  winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
-                  New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
+          winrm quickconfig -q
+          winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
+          New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
-                  winrm enumerate winrm/config/listener
+          winrm enumerate winrm/config/listener
 
-            - name: Setup WSL Ubuntu
-              uses: Vampire/setup-wsl@v6
-              with:
-                  distribution: Ubuntu-24.04
+      - name: Setup WSL Ubuntu
+        uses: Vampire/setup-wsl@v6
+        with:
+          distribution: Ubuntu-24.04
 
-            - name: Install test dependencies in WSL
-              shell: wsl-bash {0}
-              run: |
-                  set -euxo pipefail
+      - name: Install test dependencies in WSL
+        shell: wsl-bash {0}
+        env:
+          GITHUB_WORKSPACE: ${{ github.workspace }}
+        run: |
+          set -euxo pipefail
+          WORKSPLACE="$GITHUB_WORKSPACE:-$PWD"
+          curl -LsSf https://astral.sh/uv/install.sh | sh
+          export PATH="$HOME/.local/bin:$PATH"
+          source $HOME/.local/bin/env
 
-                  curl -LsSf https://astral.sh/uv/install.sh | sh
-                  export PATH="$HOME/.local/bin:$PATH"
+          export UV_CACHE_DIR="$WORKSPACE/.ci-cache/uv"
+          export UV_LINK_MODE=copy
 
-                  export UV_CACHE_DIR="$GITHUB_WORKSPACE/.ci-cache/uv"
-                  export UV_LINK_MODE=copy
+          uv venv .venv --python 3.12
+          uv pip install -r requirements.txt
 
-                  uv venv .venv --python 3.12
-                  uv pip install -r requirements.txt
+          .venv/bin/activate
+          python --version
+          ansible-galaxy collection install -r collections/requirements.yml
+          ansible --version
+          molecule --version
 
-                  .venv/bin/activate
-                  python --version
-                  ansible-galaxy collection install -r collections/requirements.yml
-                  ansible --version
-                  molecule --version
-
-            - name: Run Molecule tests
-              shell: wsl-bash {0}
-              env:
-                  WINDOWS_RUNNER_USER: ${{ env.WINDOWS_RUNNER_USER }}
-                  WINDOWS_RUNNER_PASSWORD: ${{ env.WINDOWS_RUNNER_PASSWORD }}
-              run: |
-                  set -euxo pipefail
-                  . .venv/bin/activate
-                  molecule test -s windows-runner
+      - name: Run Molecule tests
+        shell: wsl-bash {0}
+        env:
+          WINDOWS_RUNNER_USER: ${{ env.WINDOWS_RUNNER_USER }}
+          WINDOWS_RUNNER_PASSWORD: ${{ env.WINDOWS_RUNNER_PASSWORD }}
+        run: |
+          set -euxo pipefail
+          . .venv/bin/activate
+          molecule test -s windows-runner
