@@ -9,3 +9,24 @@ platforms:
   - name: windows-runner
     groups:
       - windows
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      windows-runner:
+        ansible_host: 127.0.0.1
+        ansible_user: "{{ lookup('env', 'WINDOWS_RUNNER_USER') }}"
+        ansible_password: "{{ lookup('env', 'WINDOWS_RUNNER_PASSWORD') }}"
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_port: 5985
+        ansible_winrm_server_cert_validation: ignore
+        ansible_winrm_operations_timeout_sec: 60
+        ansible_winrm_read_timeout_sec: 90
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+
+verifier:
+  name: ansible

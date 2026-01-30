@@ -19,7 +19,7 @@ jobs:
             - name: Create local WINRM user
               run: |
                     $Username = "Molecule"
-                    $Password = [Convert]::ToBase64String([System.Security.Cryptography.RandomNumberGenerator]::GetBytes(16))
+                    $Password = -join ((48..57) + (97..122) | Get-Random -Count 32 | % {[char]$_})
 
                     echo "::add-mask::$Password"
                     $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
