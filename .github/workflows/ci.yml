@@ -21,25 +21,22 @@ jobs:
                   WINDOWS_RUNNER_USER: ${{ secrets.WINDOWS_RUNNER_USER  }}
                   WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
               run: |
-                    net accounts
+                  echo "::add-mask::$env:WINDOWS_RUNNER_PASSWORD"
+                  $SecurePassword = ConvertTo-SecureString $env:WINDOWS_RUNNER_PASSWORD -AsPlainText -Force
+                  if (-not (Get-LocalUser -Name $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue)) {
+                      Write-Host "Creating user $env:WINDOWS_RUNNER_USER"
+                      New-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
+                  } else {
+                      Write-Host "User $env:WINDOWS_RUNNER_USER already exists"
+                      Set-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword
+                  }
+                  Add-LocalGroupMember -Group "Administrators" -Member $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue
 
-                    echo "::add-mask::$env:WINDOWS_RUNNER_PASSWORD"
-                    $SecurePassword = ConvertTo-SecureString $env:WINDOWS_RUNNER_PASSWORD -AsPlainText -Force
-                    if (-not (Get-LocalUser -Name $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue)) {
-                        Write-Host "Creating user $env:WINDOWS_RUNNER_USER"
-                        New-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
-                    } else {
-                        Write-Host "User $env:WINDOWS_RUNNER_USER already exists"
-                        Set-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword
-                    }
-                    Add-LocalGroupMember -Group "Administrators" -Member $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue
+                  winrm quickconfig -q
+                  winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
+                  New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
-                    winrm quickconfig -q
-                    winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
-
-                    New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
-
-                    winrm enumerate winrm/config/listener
+                  winrm enumerate winrm/config/listener
 
             - name: Setup WSL Ubuntu
               uses: Vampire/setup-wsl@v6
@@ -47,17 +44,17 @@ jobs:
                   distribution: Ubuntu-22.04
 
             - name: Install test dependencies in WSL
-              shell: wsl-bash
+              shell: wsl-bash {0}
               run: |
-                    set -euxo pipefail
-                    sudo apt-get update
-                    sudo apt-get install -y python3 python3-pip python3-venv
-                    python3 -m venv .venv
-                    . .venv/bin/activate
-                    pip install -U pip
-                    pip install -r requirements.txt
-                    ansible --version
-                    molecule --version
+                  set -euxo pipefail
+                  sudo apt-get update
+                  sudo apt-get install -y python3 python3-pip python3-venv
+                  python3 -m venv .venv
+                  . .venv/bin/activate
+                  pip install -U pip
+                  pip install -r requirements.txt
+                  ansible --version
+                  molecule --version
 
             - name: Run Molecule tests
               shell: wsl-bash
@@ -65,6 +62,6 @@ jobs:
                   WINDOWS_RUNNER_USER: ${{ env.WINDOWS_RUNNER_USER }}
                   WINDOWS_RUNNER_PASSWORD: ${{ env.WINDOWS_RUNNER_PASSWORD }}
               run: |
-                    set -euxo pipefail
-                    . .venv/bin/activate
-                    molecule test -s windows-runner
+                  set -euxo pipefail
+                  . .venv/bin/activate
+                  molecule test -s windows-runner
