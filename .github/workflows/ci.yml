@@ -17,6 +17,9 @@ jobs:
               uses: actions/checkout@v4
 
             - name: Create local WINRM user
+              env:
+                  WINDOWS_RUNNER_USER: ${{ secrets.WINDOWS_RUNNER_USER  }}
+                  WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
               run: |
                     net accounts
 
