@@ -1,0 +1,41 @@
+---
+
+- name: Download Prometheus Windows Hardware Exporter MSI
+  ansible.builtin.get_url:
+    url: "{{ prometheus_windows_hardware_exporter_full_download_url }}"
+    dest: "{{ ansible_env.TEMP }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
+    checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
+    checksum_algorithm: "sha256"
+    force: yes
+
+- name: Install Prometheus Windows Hardware Exporter
+  ansible.windows.win_package:
+    path: "{{ ansible_env.TEMP }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
+    arguments: "{{ prometheus_windows_hardware_exporter_install_arguments }}"
+    state: present
+  register: install_result
+
+- name: Get PrometheusWindowsHardwareExporter service info
+  ansible.windows.win_service_info:
+    name: "{{ prometheus_windows_hardware_exporter_service_name }}"
+  register: service_info
+
+- name: Ensure PrometheusWindowsHardwareExporter service exists
+  ansible.builtin.fail:
+    msg: "Prometheus Windows Hardware Exporter service does not exist"
+  when: service_info.services | length == 0
+
+- name: Get PrometheusWindowsHardwareExporter installation path
+  ansible.builtin.set_fact:
+    __exporter_install_path: >-
+      {{ service_info.services[0].path | regex_replace('^"([^"]+)".*$', '\1') | default(service_info.services[0].path.split(' ')[0]) }}
+  when: service_info.services | length > 0
+
+- name: Configure Prometheus Windows Hardware Exporter service
+  ansible.windows.win_service:
+    name: "{{ prometheus_windows_hardware_exporter_service_name }}"
+    start_mode: "{{ prometheus_windows_hardware_exporter_startup_type }}"
+    path: "{{ __exporter_install_path }} --service --listen_address={{ prometheus_windows_hardware_exporter_listen_address }} --collectors={{ prometheus_windows_hardware_exporter_metrics | join(',') }}"
+    state: started
+  when: install_result.changed
+

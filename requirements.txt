@@ -1,0 +1,4 @@
+ansible-core>=2.18.0
+molecule>=24.0.0
+molecule-plugins>=23.0.0
+pywinrm>=0.4.3
