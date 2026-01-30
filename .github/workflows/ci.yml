@@ -77,9 +77,11 @@ jobs:
       - name: Run Molecule tests
         shell: wsl-bash {0}
         env:
-          WINDOWS_RUNNER_USER: ${{ env.WINDOWS_RUNNER_USER }}
-          WINDOWS_RUNNER_PASSWORD: ${{ env.WINDOWS_RUNNER_PASSWORD }}
+          WINDOWS_RUNNER_USER: ${{ secrets.WINDOWS_RUNNER_USER }}
+          WINDOWS_RUNNER_PASSWORD: ${{ secrets.WINDOWS_RUNNER_PASSWORD }}
         run: |
           set -euxo pipefail
           . .venv/bin/activate
+          echo "WINDOWS_RUNNER_USER=$WINDOWS_RUNNER_USER"
+          echo "WINDOWS_RUNNER_PASSWORD=$WINDOWS_RUNNER_PASSWORD"
           molecule test -s windows-runner
