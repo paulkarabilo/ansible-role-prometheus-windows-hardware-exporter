@@ -19,19 +19,17 @@ jobs:
             - name: Create local WINRM user
               run: |
                     net accounts
-                    $Username = "Molecule"
-                    $Password = -join ((48..57) + (97..122) | Get-Random -Count 32 | % {[char]$_})
 
-                    echo "::add-mask::$Password"
-                    $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
-                    if (-not (Get-LocalUser -Name $Username -ErrorAction SilentlyContinue)) {
-                        Write-Host "Creating user $Username"
-                        New-LocalUser -Name $Username -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
+                    echo "::add-mask::$env:WINDOWS_RUNNER_PASSWORD"
+                    $SecurePassword = ConvertTo-SecureString $env:WINDOWS_RUNNER_PASSWORD -AsPlainText -Force
+                    if (-not (Get-LocalUser -Name $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue)) {
+                        Write-Host "Creating user $env:WINDOWS_RUNNER_USER"
+                        New-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword -AccountNeverExpires -PasswordNeverExpires
                     } else {
-                        Write-Host "User $Username already exists"
-                        Set-LocalUser -Name $Username -Password $SecurePassword
+                        Write-Host "User $env:WINDOWS_RUNNER_USER already exists"
+                        Set-LocalUser -Name $env:WINDOWS_RUNNER_USER -Password $SecurePassword
                     }
-                    Add-LocalGroupMember -Group "Administrators" -Member $Username -ErrorAction SilentlyContinue
+                    Add-LocalGroupMember -Group "Administrators" -Member $env:WINDOWS_RUNNER_USER -ErrorAction SilentlyContinue
 
                     winrm quickconfig -q
                     winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
@@ -39,9 +37,6 @@ jobs:
                     New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
                     winrm enumerate winrm/config/listener
-
-                    Add-Content $env:GITHUB_ENV "WINDOWS_RUNNER_USER=$Username"
-                    Add-Content $env:GITHUB_ENV "WINDOWS_RUNNER_PASSWORD=$Password"
 
             - name: Setup WSL Ubuntu
               uses: Vampire/setup-wsl@v6
