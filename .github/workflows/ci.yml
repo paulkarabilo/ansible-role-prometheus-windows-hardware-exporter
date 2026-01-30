@@ -84,5 +84,7 @@ jobs:
           # ensure secrets are available inside WSL: prefer existing env vars, fall back to GitHub secrets
           export WINDOWS_RUNNER_USER="${WINDOWS_RUNNER_USER:-${{ secrets.WINDOWS_RUNNER_USER }}}"
           export WINDOWS_RUNNER_PASSWORD="${WINDOWS_RUNNER_PASSWORD:-${{ secrets.WINDOWS_RUNNER_PASSWORD }}}"
+          # detect Windows host IP so WSL can reach WinRM on the Windows host
+          export WINDOWS_RUNNER_HOST="${WINDOWS_RUNNER_HOST:-$(grep nameserver /etc/resolv.conf | cut -d' ' -f2 | head -n1)}"
           . .venv/bin/activate
           molecule test -s windows-runner

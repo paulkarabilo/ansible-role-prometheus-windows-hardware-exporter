@@ -15,7 +15,7 @@ provisioner:
   inventory:
     host_vars:
       windows-runner:
-        ansible_host: 127.0.0.1
+        ansible_host: "{{ lookup('env', 'WINDOWS_RUNNER_HOST') | default('127.0.0.1') }}"
         ansible_user: "{{ lookup('env', 'WINDOWS_RUNNER_USER') }}"
         ansible_password: "{{ lookup('env', 'WINDOWS_RUNNER_PASSWORD') }}"
         ansible_connection: winrm
