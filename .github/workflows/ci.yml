@@ -19,7 +19,7 @@ jobs:
             - name: Create local WINRM user
               run: |
                     $Username = "Molecule"
-                    $Password = [System.Web.Security.Membership]::GeneratePassword(24,4)
+                    $Password = ([guid]::NewGuid()).ToString("N") + [guid]::NewGuid().ToString("N")).Substring(0,32)
 
                     echo "::add-mask::$Password"
                     $SecurePassword = ConvertTo-SecureString $Password -AsPlainText -Force
