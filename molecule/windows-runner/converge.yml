@@ -2,6 +2,9 @@
 - name: Converge
   hosts: windows
   gather_facts: false
+  pre_tasks:
+    - name: Gather gather_facts
+      ansible.windows.setup:
   tasks:
     - name: Apply Role
       ansible.builtin.include_role:

@@ -3,14 +3,14 @@
 - name: Download Prometheus Windows Hardware Exporter MSI
   ansible.builtin.get_url:
     url: "{{ prometheus_windows_hardware_exporter_full_download_url }}"
-    dest: "{{ ansible_env.TEMP }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
+    dest: '{{ ansible_env.TEMP }}\{{ prometheus_windows_hardware_exporter_package_name }}'
     checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
     checksum_algorithm: "sha256"
     force: yes
 
 - name: Install Prometheus Windows Hardware Exporter
   ansible.windows.win_package:
-    path: "{{ ansible_env.TEMP }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
+    path: '{{ ansible_env.TEMP }}\{{ prometheus_windows_hardware_exporter_package_name }}'
     arguments: "{{ prometheus_windows_hardware_exporter_install_arguments }}"
     state: present
   register: install_result
