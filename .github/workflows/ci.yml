@@ -68,7 +68,7 @@ jobs:
           uv venv .venv --python 3.12
           uv pip install -r requirements.txt
 
-          .venv/bin/activate
+          . .venv/bin/activate
           python --version
           ansible-galaxy collection install -r collections/requirements.yml
           ansible --version
