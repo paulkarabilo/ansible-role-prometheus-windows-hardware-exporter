@@ -9,6 +9,10 @@
         name: "PrometheusWindowsHardwareExporter"
       register: service_info
 
+    - name: Debug service info
+      ansible.builtin.debug:
+        var: service_info
+
     - name: Assert Prometheus Windows Hardware Exporter service is running
       ansible.builtin.assert:
         that:
