@@ -8,7 +8,7 @@ prometheus_windows_hardware_exporter_install_path: "C:\\Program Files\\Prometheu
 prometheus_windows_hardware_exporter_install_arguments: "/quiet"
 prometheus_windows_hardware_exporter_config_path: "{{ prometheus_windows_hardware_exporter_install_path }}\\config.json"
 prometheus_windows_hardware_exporter_listen_address: "http://+:9182/"
-prometheus_windows_hardware_exporter_startup_type: "automatic"
+prometheus_windows_hardware_exporter_startup_type: "auto"
 
 prometheus_windows_hardware_exporter_metrics:
   - cpu
