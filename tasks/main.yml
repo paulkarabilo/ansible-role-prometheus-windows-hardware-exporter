@@ -1,19 +1,29 @@
 ---
 
+- name: Create temp directory for download
+  ansible.windows.win_tempfile:
+    state: directory
+  register: temp_dir
+
 - name: Download Prometheus Windows Hardware Exporter MSI
   ansible.builtin.get_url:
     url: "{{ prometheus_windows_hardware_exporter_full_download_url }}"
-    dest: '{{ ansible_env.TEMP }}\{{ prometheus_windows_hardware_exporter_package_name }}'
+    dest: '{{ temp_dir.path }}\{{ prometheus_windows_hardware_exporter_package_name }}'
     checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
     checksum_algorithm: "sha256"
     force: yes
 
 - name: Install Prometheus Windows Hardware Exporter
   ansible.windows.win_package:
-    path: '{{ ansible_env.TEMP }}\{{ prometheus_windows_hardware_exporter_package_name }}'
+    path: '{{ temp_dir.path }}\{{ prometheus_windows_hardware_exporter_package_name }}'
     arguments: "{{ prometheus_windows_hardware_exporter_install_arguments }}"
     state: present
   register: install_result
+
+- name: Remove temp directory
+  ansible.windows.win_file:
+    path: '{{ temp_dir.path }}'
+    state: absent
 
 - name: Get PrometheusWindowsHardwareExporter service info
   ansible.windows.win_service_info:
