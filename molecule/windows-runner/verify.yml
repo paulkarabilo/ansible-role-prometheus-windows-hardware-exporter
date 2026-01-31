@@ -6,7 +6,7 @@
   tasks:
     - name: Check if Prometheus Windows Hardware Exporter service is running
       ansible.windows.win_service_info:
-        name: "{{ prometheus_windows_hardware_exporter_service_name }}"
+        name: "PrometheusWindowsHardwareExporter"
       register: service_info
 
     - name: Assert Prometheus Windows Hardware Exporter service is running
