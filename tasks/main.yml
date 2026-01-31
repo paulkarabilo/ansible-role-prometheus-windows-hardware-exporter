@@ -11,7 +11,6 @@
     dest: "{{ temp_dir.path }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
     checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
     checksum_algorithm: "sha256"
-    force: yes
 
 - name: Install Prometheus Windows Hardware Exporter
   ansible.windows.win_package:
@@ -19,11 +18,6 @@
     arguments: "{{ prometheus_windows_hardware_exporter_install_arguments }}"
     state: present
   register: install_result
-
-- name: Remove temp directory
-  ansible.windows.win_file:
-    path: '{{ temp_dir.path }}'
-    state: absent
 
 - name: Get PrometheusWindowsHardwareExporter service info
   ansible.windows.win_service_info:
