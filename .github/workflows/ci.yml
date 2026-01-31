@@ -44,7 +44,7 @@ jobs:
           winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
           New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
-          Net-NewFirewallRule -DisplayName "Allow WinRM HTTP" -Direction Inbound -Protocol TCP -LocalPort 5985 -Action Allow -Profile Any -Enabled True | Out-Null
+          New-NetFirewallRule -DisplayName "Allow WinRM HTTP" -Direction Inbound -Protocol TCP -LocalPort 5985 -Action Allow -Profile Any -Enabled True | Out-Null
 
           winrm enumerate winrm/config/listener
 
