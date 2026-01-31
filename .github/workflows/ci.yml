@@ -92,8 +92,6 @@ jobs:
           export WINDOWS_RUNNER_PASSWORD="${WINDOWS_RUNNER_PASSWORD:-${{ secrets.WINDOWS_RUNNER_PASSWORD }}}"
           WIN_HOST="$(awk '/nameserver / { print $2; exit }' /etc/resolv.conf)"
           echo "WIN_HOST=$WIN_HOST"
-          echo "WIN_HOST=$WIN_HOST" >> "$GITHUB_ENV"
-          # detect Windows host IP so WSL can reach WinRM on the Windows host
           export WINDOWS_RUNNER_HOST="${WIN_HOST:-$(grep nameserver /etc/resolv.conf | cut -d' ' -f2 | head -n1)}"
           . .venv/bin/activate
           molecule test -s windows-runner
