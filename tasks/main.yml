@@ -6,9 +6,9 @@
   register: temp_dir
 
 - name: Download Prometheus Windows Hardware Exporter MSI
-  ansible.builtin.get_url:
+  ansible.windows.win_get_url:
     url: "{{ prometheus_windows_hardware_exporter_full_download_url }}"
-    dest: '{{ temp_dir.path }}\{{ prometheus_windows_hardware_exporter_package_name }}'
+    dest: "{{ temp_dir.path }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
     checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
     checksum_algorithm: "sha256"
     force: yes
