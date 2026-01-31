@@ -4,6 +4,7 @@
   ansible.windows.win_tempfile:
     state: directory
   register: temp_dir
+  changed_when: false
 
 - name: Download Prometheus Windows Hardware Exporter MSI
   ansible.windows.win_get_url:
@@ -11,6 +12,7 @@
     dest: "{{ temp_dir.path }}\\{{ prometheus_windows_hardware_exporter_package_name }}"
     checksum: "{{ prometheus_windows_hardware_exporter_sha256_checksum }}"
     checksum_algorithm: "sha256"
+  changed_when: false
 
 - name: Install Prometheus Windows Hardware Exporter
   ansible.windows.win_package:
