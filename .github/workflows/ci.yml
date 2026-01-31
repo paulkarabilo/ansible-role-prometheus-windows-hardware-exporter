@@ -44,10 +44,13 @@ jobs:
           winrm set winrm/config/service/auth '@{Negotiate="true";NTLM="true"}'
           New-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1 -PropertyType DWord -Force | Out-Null
 
+          Net-NewFirewallRule -DisplayName "Allow WinRM HTTP" -Direction Inbound -Protocol TCP -LocalPort 5985 -Action Allow -Profile Any -Enabled True | Out-Null
+
           winrm enumerate winrm/config/listener
+
           netstat -ano | findstr :5985
           Test-NetConnection -ComputerName 127.0.0.1 -Port 5985
-          Get-NetFirewallRule -DisplayGroup "Windows Remote Management" | Format-Table -Auto
+          Get-NetFirewallRule -DisplayName "Allow WinRM HTTP" | Format-List
 
       - name: Setup WSL Ubuntu
         uses: Vampire/setup-wsl@v6
@@ -87,7 +90,10 @@ jobs:
           # ensure secrets are available inside WSL: prefer existing env vars, fall back to GitHub secrets
           export WINDOWS_RUNNER_USER="${WINDOWS_RUNNER_USER:-${{ secrets.WINDOWS_RUNNER_USER }}}"
           export WINDOWS_RUNNER_PASSWORD="${WINDOWS_RUNNER_PASSWORD:-${{ secrets.WINDOWS_RUNNER_PASSWORD }}}"
+          WIN_HOST="$(awk '/nameserver / { print $2; exit }' /etc/resolv.conf)"
+          echo "WIN_HOST=$WIN_HOST"
+          echo "WIN_HOST=$WIN_HOST" >> "$GITHUB_ENV"
           # detect Windows host IP so WSL can reach WinRM on the Windows host
-          export WINDOWS_RUNNER_HOST="${WINDOWS_RUNNER_HOST:-$(grep nameserver /etc/resolv.conf | cut -d' ' -f2 | head -n1)}"
+          export WINDOWS_RUNNER_HOST="${WIN_HOST:-$(grep nameserver /etc/resolv.conf | cut -d' ' -f2 | head -n1)}"
           . .venv/bin/activate
           molecule test -s windows-runner
