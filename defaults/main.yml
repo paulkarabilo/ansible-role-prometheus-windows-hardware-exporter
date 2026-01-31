@@ -1,5 +1,5 @@
 prometheus_windows_hardware_exporter_version: "0.0.3"
-prometheus_windows_hardware_exporter_sha256_checksum: "3b1d5f5e8c4e2f8e6f7a9c3b2d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0i1j2k"
+prometheus_windows_hardware_exporter_sha256_checksum: "c1fcbdf1a9afd68ccf3d7cfb1f4e27eedd90ee8f2f80d3e7e750d8c5d0688000"
 prometheus_windows_hardware_exporter_download_url: "https://github.com/paulkarabilo/prometheus_windows_hardware_exporter/releases/download/v{{ prometheus_windows_hardware_exporter_version }}"
 prometheus_windows_hardware_exporter_package_name: "PrometheusWindowsHardwareExporter.msi"
 prometheus_windows_hardware_exporter_full_download_url: "{{ prometheus_windows_hardware_exporter_download_url }}/{{ prometheus_windows_hardware_exporter_package_name }}"
@@ -8,7 +8,7 @@ prometheus_windows_hardware_exporter_install_path: "C:\\Program Files\\Prometheu
 prometheus_windows_hardware_exporter_install_arguments: "/quiet"
 prometheus_windows_hardware_exporter_config_path: "{{ prometheus_windows_hardware_exporter_install_path }}\\config.json"
 prometheus_windows_hardware_exporter_listen_address: "http://+:9182/"
-prometheus_windows_hardware_exporter_startup_type: "automatic"
+prometheus_windows_hardware_exporter_startup_type: "auto"
 
 prometheus_windows_hardware_exporter_metrics:
   - cpu

@@ -3,9 +3,32 @@ dependency:
   name: galaxy
 
 driver:
-  name: delegated
+  name: default
 
 platforms:
   - name: windows-runner
     groups:
       - windows
+
+provisioner:
+  name: ansible
+  inventory:
+    host_vars:
+      windows-runner:
+        ansible_host: "{{ lookup('env', 'WINDOWS_RUNNER_HOST') | default('127.0.0.1') }}"
+        ansible_user: "{{ lookup('env', 'WINDOWS_RUNNER_USER') }}"
+        ansible_shell_type: powershell
+        ansible_shell_executable: powershell.exe
+        ansible_password: "{{ lookup('env', 'WINDOWS_RUNNER_PASSWORD') }}"
+        ansible_connection: winrm
+        ansible_winrm_transport: ntlm
+        ansible_winrm_port: 5985
+        ansible_winrm_server_cert_validation: ignore
+        ansible_winrm_operation_timeout_sec: 60
+        ansible_winrm_read_timeout_sec: 90
+  playbooks:
+    converge: converge.yml
+    verify: verify.yml
+
+verifier:
+  name: ansible
