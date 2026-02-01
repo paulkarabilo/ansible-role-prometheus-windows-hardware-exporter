@@ -23,21 +23,19 @@ ansible-galaxy collection install ansible.windows
 
 All variables are defined in `defaults/main.yml`. Commonly-used variables are:
 
-| Variable | Default | Description |
-||||
-| `prometheus_windows_hardware_exporter_version` | `"0.0.3"` | Exporter version to download |
-| `prometheus_windows_hardware_exporter_full_download_url` | `computed` | Full URL to MSI download |
-| `prometheus_windows_hardware_exporter_package_name` | `PrometheusWindowsHardwareExporter.msi` | MSI file name |
-| `prometheus_windows_hardware_exporter_sha256_checksum` | (sha256) | Checksum used to verify the download |
-| `prometheus_windows_hardware_exporter_install_arguments` | `/quiet` | Arguments passed to MSI installer |
-| `prometheus_windows_hardware_exporter_install_path` | `C:\Program Files\PrometheusWindowsHardwareExporter` | Expected install path |
-| `prometheus_windows_hardware_exporter_service_name` | `PrometheusWindowsHardwareExporter` | Windows service name |
-| `prometheus_windows_hardware_exporter_listen_address` | `http://+:9182/` | Address exporter listens on |
-| `prometheus_windows_hardware_exporter_startup_type` | `auto` | Service startup type (e.g., `auto`, `manual`, `disabled`) |
-| `prometheus_windows_hardware_exporter_metrics` | `[cpu, memory, disk, network, gpu]` | List of enabled collectors |
-| `prometheus_windows_hardware_exporter_firewall_*` | See defaults | Firewall rule controls (name, profiles, state, etc.) |
-| `prometheus_windows_hardware_exporter_install_pawnio` | `true` | Whether to install PawnIO helper |
-| `prometheus_windows_hardware_exporter_pawnio_version` | `2.0.1` | PawnIO version |
+| Variable                                                 | Default                                              | Description |
+|----------------------------------------------------------|------------------------------------------------------|-------------|
+| `prometheus_windows_hardware_exporter_version`           | `"0.0.3"`                                            | Exporter version to download |
+| `prometheus_windows_hardware_exporter_full_download_url` | `computed`                                           | Full URL to MSI download |
+| `prometheus_windows_hardware_exporter_package_name`      | `PrometheusWindowsHardwareExporter.msi`              | MSI file name |
+| `prometheus_windows_hardware_exporter_sha256_checksum`   | (sha256)                                             | Checksum used to verify the download |
+| `prometheus_windows_hardware_exporter_install_arguments` | `/quiet`                                             | Arguments passed to MSI installer |
+| `prometheus_windows_hardware_exporter_install_path`      | `C:\Program Files\PrometheusWindowsHardwareExporter` | Expected install path |
+| `prometheus_windows_hardware_exporter_service_name`      | `PrometheusWindowsHardwareExporter`                  | Windows service name |
+| `prometheus_windows_hardware_exporter_listen_address`    | `http://+:9182/`                                     | Address exporter listens on |
+| `prometheus_windows_hardware_exporter_startup_type`      | `auto`                                               | Service startup type (e.g., `auto`, `manual`, `disabled`) |
+| `prometheus_windows_hardware_exporter_metrics`           | `[cpu, memory, disk, network, gpu]`                  | List of enabled collectors |
+| `prometheus_windows_hardware_exporter_firewall_*`        | See defaults                                         | Firewall rule controls (name, profiles, state, etc.) |
 
 ## Installing role from GitHub
 
